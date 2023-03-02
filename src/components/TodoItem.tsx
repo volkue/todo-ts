@@ -3,42 +3,46 @@ import { Todo } from '../model';
 import { FaRegEdit } from 'react-icons/fa';
 import { RiDeleteBin2Line } from 'react-icons/ri';
 import { MdDoneOutline } from 'react-icons/md';
+import { TodoState } from '../context/Context';
 
 interface Props {
-  todo: Todo;
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  todo: Todo;  
 }
 
-const TodoItem: React.FC<Props> = ({ todo, todos, setTodos }) => {
-  const { item, isDone, id } = todo;  
+const TodoItem: React.FC<Props> = ({todo}) => {
+  const {id, item, isDone} = todo
+  const { dispatch} = TodoState();  
+  
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [edit, setEdit] = useState<string>(item);
-
-  const handleDone = (id:number) => {
-    setTodos(
-      todos.map(
-        todo => todo.id === id ? 
-        {...todo, isDone: !todo.isDone} 
-        : todo
-      )
-    )
+  const [edit, setEdit] = useState<string>(item); 
+ 
+  const handleDone = (id : number) => {
+    dispatch(
+      {
+        type: "DONE",
+        payload: id
+      }
+    )    
   }
 
-  const handleDelete = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleDelete = (id : number) => {
+    dispatch(
+      {
+        type: "REMOVE",
+        payload: id
+      }
+    )      
   };
 
-  const handleSubmit = (e:React.FormEvent, id:number) => {
+  const handleSubmit = (e:React.FormEvent, id : number) => {
     e.preventDefault();
-    setTodos(
-      todos.map(
-        todo => todo.id === id ? 
-        {...todo, item: edit} 
-        : todo
-      )
+    dispatch(
+      {
+        type: "EDIT",
+        payload: {id : id, item: edit}
+      }
     )
-    setIsEdit(false)
+    setIsEdit(false);
   }
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,8 +51,9 @@ const TodoItem: React.FC<Props> = ({ todo, todos, setTodos }) => {
     inputRef.current?.focus();    
   }, [isEdit])
   
-  return (
-    <form className='todo__item' onSubmit={(e) => handleSubmit(e, id)}>
+  return (   
+    
+      <form className='todo__item' onSubmit={(e) => handleSubmit(e, id)} key={id}>
       {
         isEdit ? <input 
           value={edit}
@@ -57,9 +62,6 @@ const TodoItem: React.FC<Props> = ({ todo, todos, setTodos }) => {
         /> 
         :isDone ? <s>{item}</s> : <span>{item}</span>
       }
-    
-       
-     
       <span onClick={() =>  {if (!isEdit && !isDone) {
         setIsEdit(!isEdit)}
       }}>
@@ -72,7 +74,8 @@ const TodoItem: React.FC<Props> = ({ todo, todos, setTodos }) => {
       <span onClick={() => {handleDone(id)}}>
         <MdDoneOutline />
       </span>
-    </form>
+    </form>  
+  
   );
 };
 

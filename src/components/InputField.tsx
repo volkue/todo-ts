@@ -1,13 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { TodoState } from '../context/Context';
 
-interface Props {
-  todo: string;
-  setTodo: React.Dispatch<React.SetStateAction<string>>
-  addNewTodo: (e:React.FormEvent) => void
-}
-
-const InputField:React.FC<Props> = ({todo, setTodo, addNewTodo}) => {
+const InputField:React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [todo, setTodo] = useState<string>("")
+  const { dispatch} = TodoState();
+ 
+  const addNewTodo = (e:React.FormEvent) => {
+    e.preventDefault();
+    if (todo) {
+      dispatch(
+        {
+          type: 'ADD',
+          payload:todo
+      })      
+    }
+    setTodo("");    
+  }
+
   return (
     <form className='form' onSubmit={(e)=> {
       addNewTodo(e);
@@ -16,7 +26,7 @@ const InputField:React.FC<Props> = ({todo, setTodo, addNewTodo}) => {
       <input 
         type="input" 
         value={todo}
-        ref={inputRef}
+        ref={inputRef}        
         onChange={(e)=> setTodo(e.target.value)}
         placeholder='Enter your task' 
         className='form__input'/>

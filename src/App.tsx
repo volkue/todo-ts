@@ -1,37 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import './App.css';
 import InputField from './components/InputField';
 import TodoItem from './components/TodoItem';
-import { Todo } from './model';
+import { TodoState } from './context/Context';
 
 const App:React.FC = () => {
-  const [todo, setTodo] = useState<string>("")
-  const [todos, setTodos] = useState<Todo[]>([])
   
-  const addNewTodo = (e:React.FormEvent) => {
-    e.preventDefault();
-    if (todo) {
-      setTodos([ ...todos,
-        {
-          id:Date.now(),
-          item:todo,
-          isDone:false
-        }]
-      )
-    }
-    setTodo("")    
-  }
-  console.log(todos)
+  const {state} = TodoState();
+  
   return (
     <div className="App">
       <span className="heading">Taskify</span>
-      <InputField todo={todo} setTodo = {setTodo} addNewTodo= {addNewTodo}/>
+      <InputField/>
       <div className='list__container'>
       {
-        todos.map(todo => <TodoItem todo={todo} key={todo.id} todos={todos} setTodos={setTodos}/>)
+        state.map(todo => <TodoItem todo={todo} key={todo.id}/>)
       }
-      </div>
-     
+      </div>     
     </div>
   );
 }
